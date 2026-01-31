@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
+  const navigate = useNavigate();
   const getBadgeClass = (badge: string) => {
     switch (badge) {
       case 'just-added':
@@ -32,7 +34,10 @@ export function EventCard({ event }: EventCardProps) {
   };
 
   return (
-    <Card className="group overflow-hidden border-0 shadow-none hover:shadow-md transition-shadow duration-300 animate-fade-in">
+    <Card 
+      className="group overflow-hidden border-0 shadow-none hover:shadow-md transition-shadow duration-300 animate-fade-in cursor-pointer"
+      onClick={() => navigate(`/event/${event.id}`)}
+    >
       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
         <img
           src={event.image}

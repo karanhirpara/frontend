@@ -1,4 +1,4 @@
-import { Search, MapPin, Heart, Ticket, Plus, User, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Heart, Ticket, Plus, User, ChevronDown, LogIn, LogOut, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,7 +13,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export function Header() {
-  const { isAdmin, toggleAdmin, userEmail } = useUser();
+  const { isAdmin, toggleAdmin, userEmail, isLoggedIn, logout } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -80,40 +80,62 @@ export function Header() {
                 <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
                   <User className="h-5 w-5" />
                 </div>
-                <span className="hidden lg:inline text-sm max-w-[150px] truncate">
-                  {userEmail}
-                </span>
+                {isLoggedIn && (
+                  <span className="hidden lg:inline text-sm max-w-[150px] truncate">
+                    {userEmail}
+                  </span>
+                )}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64">
-              {/* Admin Toggle */}
-              <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-sm font-medium">Admin Mode</span>
-                <Switch checked={isAdmin} onCheckedChange={toggleAdmin} />
-              </div>
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuItem onClick={() => navigate('/')}>
-                Browse events
-              </DropdownMenuItem>
-              {isAdmin && (
-                <DropdownMenuItem onClick={() => navigate('/admin')}>
-                  Manage my events
-                </DropdownMenuItem>
+              {!isLoggedIn ? (
+                <>
+                  <DropdownMenuItem onClick={() => navigate('/auth')}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Log In
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/auth')}>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Sign Up
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  {/* Admin Toggle */}
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-sm font-medium">Admin Mode</span>
+                    <Switch checked={isAdmin} onCheckedChange={toggleAdmin} />
+                  </div>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={() => navigate('/')}>
+                    Browse events
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      Manage my events
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem>Get Help</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Ticket className="mr-2 h-4 w-4" />
+                    Tickets
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Heart className="mr-2 h-4 w-4" />
+                    Liked
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>Following</DropdownMenuItem>
+                  <DropdownMenuItem>Interests</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Out
+                  </DropdownMenuItem>
+                </>
               )}
-              <DropdownMenuItem>Get Help</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Ticket className="mr-2 h-4 w-4" />
-                Tickets
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Heart className="mr-2 h-4 w-4" />
-                Liked
-              </DropdownMenuItem>
-              <DropdownMenuItem>Following</DropdownMenuItem>
-              <DropdownMenuItem>Interests</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>

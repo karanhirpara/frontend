@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, MapPin, Share2, Heart, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Share2, Heart, Users, Ticket, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { sampleEvents } from '@/data/events';
+import { RegistrationModal } from '@/components/RegistrationModal';
 
 export default function EventDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   
   const event = sampleEvents.find(e => e.id === id);
   
@@ -95,6 +98,66 @@ export default function EventDetail() {
             </div>
 
             <div className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Ticket className="h-5 w-5 text-primary" />
+                Ticket Information
+              </h2>
+              <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                {event.price === 'Free' ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">General Admission</span>
+                      <Badge className="bg-primary/20 text-primary">Free</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      This is a free event. Registration is required to attend.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center pb-2 border-b border-border">
+                      <span className="text-muted-foreground">Early Bird</span>
+                      <span className="font-medium">${(parseFloat(event.price.replace('$', '')) * 0.7).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-border">
+                      <span className="text-muted-foreground">General Admission</span>
+                      <span className="font-medium">{event.price}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">VIP Access</span>
+                      <span className="font-medium">${(parseFloat(event.price.replace('$', '')) * 2).toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                Event Details
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Duration</p>
+                  <p className="font-medium">2-3 hours</p>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Language</p>
+                  <p className="font-medium">English</p>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Age Restriction</p>
+                  <p className="font-medium">All ages</p>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Refund Policy</p>
+                  <p className="font-medium">Up to 7 days before</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-6">
               <h2 className="text-xl font-semibold mb-4">Tags</h2>
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary">{event.category}</Badge>
@@ -115,7 +178,7 @@ export default function EventDetail() {
                 )}
               </div>
 
-              <Button className="w-full" size="lg">
+              <Button className="w-full" size="lg" onClick={() => setIsRegistrationOpen(true)}>
                 Register Now
               </Button>
 
@@ -156,6 +219,12 @@ export default function EventDetail() {
           </div>
         </div>
       </div>
+
+      <RegistrationModal
+        event={event}
+        isOpen={isRegistrationOpen}
+        onClose={() => setIsRegistrationOpen(false)}
+      />
     </div>
   );
 }

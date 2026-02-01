@@ -348,7 +348,7 @@ export default function AdminDashboard() {
                           <table className="w-full text-sm">
                             <thead className="bg-muted/50">
                               <tr>
-                                <th className="text-left p-3 font-medium">Ticket ID</th>
+                                <th className="text-left p-3 font-medium">Registration ID</th>
                                 <th className="text-left p-3 font-medium">Name</th>
                                 <th className="text-left p-3 font-medium">Email</th>
                                 <th className="text-left p-3 font-medium">Phone</th>
@@ -357,10 +357,10 @@ export default function AdminDashboard() {
                             </thead>
                             <tbody>
                               {eventRegistrations.map((reg) => (
-                                <tr key={reg.ticketId} className="border-t border-border">
+                                <tr key={reg.registrationId} className="border-t border-border">
                                   <td className="p-3">
                                     <span className="font-mono text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                      {reg.ticketId}
+                                      {reg.registrationId}
                                     </span>
                                   </td>
                                   <td className="p-3">

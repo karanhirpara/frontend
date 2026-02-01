@@ -26,10 +26,10 @@ export default function MyTickets() {
 
     const ticketContent = `
 ╔══════════════════════════════════════════════════════════════╗
-║                        EVENT TICKET                           ║
+║                     EVENT REGISTRATION                        ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                               ║
-║  Ticket ID: ${registration.ticketId.padEnd(45)}║
+║  Registration ID: ${registration.registrationId.padEnd(39)}║
 ║                                                               ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  EVENT DETAILS                                                ║
@@ -54,7 +54,7 @@ export default function MyTickets() {
 ║                                                               ║
 ╚══════════════════════════════════════════════════════════════╝
 
-Please present this ticket at the event entrance.
+Please present this registration at the event entrance.
 Thank you for registering!
     `;
 
@@ -62,7 +62,7 @@ Thank you for registering!
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ticket-${registration.ticketId}.txt`;
+    a.download = `registration-${registration.registrationId}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -99,7 +99,7 @@ Thank you for registering!
               if (!event) return null;
 
               return (
-                <Card key={registration.ticketId} className="overflow-hidden">
+                <Card key={registration.registrationId} className="overflow-hidden">
                   <CardContent className="p-0">
                     <div className="flex flex-col md:flex-row">
                       {/* Event Image */}
@@ -111,13 +111,13 @@ Thank you for registering!
                         />
                       </div>
 
-                      {/* Ticket Details */}
+                      {/* Registration Details */}
                       <div className="flex-1 p-6">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-1 rounded">
-                                {registration.ticketId}
+                                {registration.registrationId}
                               </span>
                             </div>
                             <h3 className="font-semibold text-lg text-foreground mb-3">

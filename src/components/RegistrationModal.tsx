@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TicketSelector } from './TicketSelector';
 import type { Event } from '@/data/events';
 
 interface RegistrationModalProps {
@@ -15,7 +14,7 @@ interface RegistrationModalProps {
 }
 
 export interface Registration {
-  ticketId: string;
+  registrationId: string;
   eventId: string;
   firstName: string;
   lastName: string;
@@ -24,11 +23,11 @@ export interface Registration {
   registeredAt: string;
 }
 
-type Step = 'tickets' | 'details' | 'confirmation';
+type Step = 'details' | 'confirmation';
 
-function generateTicketId(): string {
+function generateRegistrationId(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'TKT-';
+  let result = 'REG-';
   for (let i = 0; i < 8; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -36,10 +35,9 @@ function generateTicketId(): string {
 }
 
 export function RegistrationModal({ event, isOpen, onClose, onRegister }: RegistrationModalProps) {
-  const [step, setStep] = useState<Step>('tickets');
-  const [ticketSelected, setTicketSelected] = useState(false);
+  const [step, setStep] = useState<Step>('details');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [generatedTicketId, setGeneratedTicketId] = useState('');
+  const [generatedRegistrationId, setGeneratedRegistrationId] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -48,25 +46,17 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
     agreeTerms: false,
   });
 
-  const handleNext = () => {
-    if (step === 'tickets' && ticketSelected) {
-      setStep('details');
-    } else if (step === 'details') {
-      handleSubmit();
-    }
-  };
-
   const handleSubmit = () => {
     setIsProcessing(true);
-    const ticketId = generateTicketId();
+    const registrationId = generateRegistrationId();
     
     // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
-      setGeneratedTicketId(ticketId);
+      setGeneratedRegistrationId(registrationId);
       
       const registration: Registration = {
-        ticketId,
+        registrationId,
         eventId: event.id,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -85,9 +75,8 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
   };
 
   const handleClose = () => {
-    setStep('tickets');
-    setTicketSelected(false);
-    setGeneratedTicketId('');
+    setStep('details');
+    setGeneratedRegistrationId('');
     setFormData({ firstName: '', lastName: '', email: '', phone: '', agreeTerms: false });
     onClose();
   };
@@ -108,37 +97,8 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
           </Button>
         </div>
 
-        {/* Progress Steps */}
-        {step !== 'confirmation' && (
-          <div className="flex items-center justify-center gap-2 p-4 border-b border-border">
-            {['tickets', 'details'].map((s, i) => (
-              <div key={s} className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === s
-                      ? 'bg-primary text-primary-foreground'
-                      : ['tickets', 'details'].indexOf(step) > i
-                      ? 'bg-primary/20 text-primary'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {['tickets', 'details'].indexOf(step) > i ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    i + 1
-                  )}
-                </div>
-                {i < 1 && <div className="w-12 h-0.5 bg-muted mx-1" />}
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Content */}
         <div className="p-6">
-          {step === 'tickets' && (
-            <TicketSelector onSelect={setTicketSelected} />
-          )}
 
           {step === 'details' && (
             <div className="space-y-4">
@@ -224,8 +184,8 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
 
               <div className="bg-muted/50 rounded-lg p-4 text-left space-y-2">
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Ticket ID:</span>{' '}
-                  <span className="font-mono font-bold text-primary">{generatedTicketId}</span>
+                  <span className="text-muted-foreground">Registration ID:</span>{' '}
+                  <span className="font-mono font-bold text-primary">{generatedRegistrationId}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Name:</span>{' '}
@@ -263,30 +223,18 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
         {/* Footer */}
         {step !== 'confirmation' && (
           <div className="sticky bottom-0 bg-background border-t border-border p-4 flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (step === 'details') setStep('tickets');
-                else handleClose();
-              }}
-            >
-              {step === 'tickets' ? 'Cancel' : 'Back'}
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
             </Button>
             <Button
-              onClick={handleNext}
-              disabled={
-                (step === 'tickets' && !ticketSelected) ||
-                (step === 'details' && (!formData.firstName || !formData.email || !formData.agreeTerms)) ||
-                isProcessing
-              }
+              onClick={handleSubmit}
+              disabled={!formData.firstName || !formData.email || !formData.agreeTerms || isProcessing}
             >
               {isProcessing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   Processing...
                 </>
-              ) : step === 'tickets' ? (
-                'Continue'
               ) : (
                 'Complete Registration'
               )}

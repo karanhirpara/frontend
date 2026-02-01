@@ -103,32 +103,13 @@ export default function EventDetail() {
                 Ticket Information
               </h2>
               <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-                {event.price === 'Free' ? (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">General Admission</span>
-                      <Badge className="bg-primary/20 text-primary">Free</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      This is a free event. Registration is required to attend.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-center pb-2 border-b border-border">
-                      <span className="text-muted-foreground">Early Bird</span>
-                      <span className="font-medium">${(parseFloat(event.price.replace('$', '')) * 0.7).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-2 border-b border-border">
-                      <span className="text-muted-foreground">General Admission</span>
-                      <span className="font-medium">{event.price}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">VIP Access</span>
-                      <span className="font-medium">${(parseFloat(event.price.replace('$', '')) * 2).toFixed(2)}</span>
-                    </div>
-                  </>
-                )}
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">General Admission</span>
+                  <Badge className="bg-primary/20 text-primary">Free</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Free event - one ticket per person. Registration is required to attend.
+                </p>
               </div>
             </div>
 

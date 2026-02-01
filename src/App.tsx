@@ -7,6 +7,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import Index from "./pages/Index";
 import AdminDashboard from "./pages/AdminDashboard";
 import EventDetail from "./pages/EventDetail";
+import MyTickets from "./pages/MyTickets";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/event/:id" element={<EventDetail />} />
+            <Route path="/my-tickets" element={<MyTickets />} />
             <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

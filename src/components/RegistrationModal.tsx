@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, User, Mail, Phone, CreditCard, Check, Loader2 } from 'lucide-react';
+import { X, User, Mail, Phone, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,14 +11,35 @@ interface RegistrationModalProps {
   event: Event;
   isOpen: boolean;
   onClose: () => void;
+  onRegister?: (registration: Registration) => void;
 }
 
-type Step = 'tickets' | 'details' | 'payment' | 'confirmation';
+export interface Registration {
+  ticketId: string;
+  eventId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  registeredAt: string;
+}
 
-export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalProps) {
+type Step = 'tickets' | 'details' | 'confirmation';
+
+function generateTicketId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'TKT-';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+export function RegistrationModal({ event, isOpen, onClose, onRegister }: RegistrationModalProps) {
   const [step, setStep] = useState<Step>('tickets');
-  const [selectedTickets, setSelectedTickets] = useState<{ [key: string]: number }>({});
+  const [ticketSelected, setTicketSelected] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [generatedTicketId, setGeneratedTicketId] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -27,35 +48,46 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
     agreeTerms: false,
   });
 
-  const isFreeEvent = event.price === 'Free';
-  const totalTickets = Object.values(selectedTickets).reduce((a, b) => a + b, 0);
-
   const handleNext = () => {
-    if (step === 'tickets' && totalTickets > 0) {
+    if (step === 'tickets' && ticketSelected) {
       setStep('details');
     } else if (step === 'details') {
-      if (isFreeEvent) {
-        handleSubmit();
-      } else {
-        setStep('payment');
-      }
-    } else if (step === 'payment') {
       handleSubmit();
     }
   };
 
   const handleSubmit = () => {
     setIsProcessing(true);
+    const ticketId = generateTicketId();
+    
     // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
+      setGeneratedTicketId(ticketId);
+      
+      const registration: Registration = {
+        ticketId,
+        eventId: event.id,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        registeredAt: new Date().toISOString(),
+      };
+      
+      // Store registration in localStorage
+      const existingRegistrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+      localStorage.setItem('registrations', JSON.stringify([...existingRegistrations, registration]));
+      
+      onRegister?.(registration);
       setStep('confirmation');
-    }, 2000);
+    }, 1500);
   };
 
   const handleClose = () => {
     setStep('tickets');
-    setSelectedTickets({});
+    setTicketSelected(false);
+    setGeneratedTicketId('');
     setFormData({ firstName: '', lastName: '', email: '', phone: '', agreeTerms: false });
     onClose();
   };
@@ -79,26 +111,24 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
         {/* Progress Steps */}
         {step !== 'confirmation' && (
           <div className="flex items-center justify-center gap-2 p-4 border-b border-border">
-            {['tickets', 'details', ...(isFreeEvent ? [] : ['payment'])].map((s, i) => (
+            {['tickets', 'details'].map((s, i) => (
               <div key={s} className="flex items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step === s
                       ? 'bg-primary text-primary-foreground'
-                      : ['tickets', 'details', 'payment'].indexOf(step) > i
+                      : ['tickets', 'details'].indexOf(step) > i
                       ? 'bg-primary/20 text-primary'
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  {['tickets', 'details', 'payment'].indexOf(step) > i ? (
+                  {['tickets', 'details'].indexOf(step) > i ? (
                     <Check className="h-4 w-4" />
                   ) : (
                     i + 1
                   )}
                 </div>
-                {i < (isFreeEvent ? 1 : 2) && (
-                  <div className="w-12 h-0.5 bg-muted mx-1" />
-                )}
+                {i < 1 && <div className="w-12 h-0.5 bg-muted mx-1" />}
               </div>
             ))}
           </div>
@@ -107,7 +137,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
         {/* Content */}
         <div className="p-6">
           {step === 'tickets' && (
-            <TicketSelector eventPrice={event.price} onSelect={setSelectedTickets} />
+            <TicketSelector onSelect={setTicketSelected} />
           )}
 
           {step === 'details' && (
@@ -182,42 +212,6 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             </div>
           )}
 
-          {step === 'payment' && (
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary" />
-                Payment Details
-              </h3>
-
-              <div className="space-y-2">
-                <Label htmlFor="cardName">Name on Card *</Label>
-                <Input id="cardName" placeholder="John Doe" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cardNumber">Card Number *</Label>
-                <Input id="cardNumber" placeholder="4242 4242 4242 4242" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expiry">Expiry Date *</Label>
-                  <Input id="expiry" placeholder="MM/YY" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cvv">CVV *</Label>
-                  <Input id="cvv" placeholder="123" />
-                </div>
-              </div>
-
-              <div className="bg-muted/50 rounded-lg p-4 mt-4">
-                <p className="text-sm text-muted-foreground">
-                  🔒 Your payment information is secure and encrypted
-                </p>
-              </div>
-            </div>
-          )}
-
           {step === 'confirmation' && (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -225,11 +219,22 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
               </div>
               <h3 className="text-xl font-bold mb-2">Registration Successful!</h3>
               <p className="text-muted-foreground mb-6">
-                You're registered for {event.title}. A confirmation email has been sent to your email
-                address.
+                You're registered for {event.title}. A confirmation email has been sent to your email address.
               </p>
 
               <div className="bg-muted/50 rounded-lg p-4 text-left space-y-2">
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Ticket ID:</span>{' '}
+                  <span className="font-mono font-bold text-primary">{generatedTicketId}</span>
+                </p>
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Name:</span>{' '}
+                  <span className="font-medium">{formData.firstName} {formData.lastName}</span>
+                </p>
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Email:</span>{' '}
+                  <span className="font-medium">{formData.email}</span>
+                </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Event:</span>{' '}
                   <span className="font-medium">{event.title}</span>
@@ -245,10 +250,6 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                 <p className="text-sm">
                   <span className="text-muted-foreground">Venue:</span>{' '}
                   <span className="font-medium">{event.venue}</span>
-                </p>
-                <p className="text-sm">
-                  <span className="text-muted-foreground">Tickets:</span>{' '}
-                  <span className="font-medium">{totalTickets}</span>
                 </p>
               </div>
 
@@ -266,7 +267,6 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
               variant="outline"
               onClick={() => {
                 if (step === 'details') setStep('tickets');
-                else if (step === 'payment') setStep('details');
                 else handleClose();
               }}
             >
@@ -275,7 +275,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             <Button
               onClick={handleNext}
               disabled={
-                (step === 'tickets' && totalTickets === 0) ||
+                (step === 'tickets' && !ticketSelected) ||
                 (step === 'details' && (!formData.firstName || !formData.email || !formData.agreeTerms)) ||
                 isProcessing
               }
@@ -287,12 +287,8 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                 </>
               ) : step === 'tickets' ? (
                 'Continue'
-              ) : step === 'details' && isFreeEvent ? (
-                'Complete Registration'
-              ) : step === 'details' ? (
-                'Continue to Payment'
               ) : (
-                'Complete Purchase'
+                'Complete Registration'
               )}
             </Button>
           </div>

@@ -69,7 +69,12 @@ export function Header() {
             <Heart className="h-5 w-5" />
           </Button>
           
-          <Button variant="ghost" size="icon" className="hidden sm:flex">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hidden sm:flex"
+            onClick={() => navigate('/my-tickets')}
+          >
             <Ticket className="h-5 w-5" />
           </Button>
 
@@ -119,9 +124,9 @@ export function Header() {
                   )}
                   <DropdownMenuItem>Get Help</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
                     <Ticket className="mr-2 h-4 w-4" />
-                    Tickets
+                    My Tickets
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Heart className="mr-2 h-4 w-4" />

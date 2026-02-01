@@ -153,10 +153,8 @@ export default function EventDetail() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card border border-border rounded-xl p-6 space-y-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-foreground">{event.price}</p>
-                {event.price === 'Free' && (
-                  <p className="text-sm text-muted-foreground">No payment required</p>
-                )}
+                <p className="text-3xl font-bold text-primary">Free</p>
+                <p className="text-sm text-muted-foreground">No payment required</p>
               </div>
 
               <Button className="w-full" size="lg" onClick={() => setIsRegistrationOpen(true)}>

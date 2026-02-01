@@ -36,7 +36,6 @@ interface EventFormData {
   date: string;
   time: string;
   venue: string;
-  price: string;
   category: string;
   image: string;
 }
@@ -47,7 +46,6 @@ const initialFormData: EventFormData = {
   date: '',
   time: '',
   venue: '',
-  price: 'Free',
   category: 'Business',
   image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop',
 };
@@ -128,7 +126,6 @@ export default function AdminDashboard() {
       date: event.date,
       time: event.time,
       venue: event.venue,
-      price: event.price,
       category: event.category,
       image: event.image,
     });

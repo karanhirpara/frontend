@@ -5,7 +5,6 @@ export interface Event {
   date: string;
   time: string;
   venue: string;
-  price: string;
   image: string;
   badge?: 'just-added' | 'promoted' | 'free';
   category: string;
@@ -19,7 +18,6 @@ export const sampleEvents: Event[] = [
     date: 'Thu, Feb 12',
     time: '12:30 PM GMT+5:30',
     venue: 'Online',
-    price: 'Free',
     image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop',
     badge: 'just-added',
     category: 'Business',
@@ -31,7 +29,6 @@ export const sampleEvents: Event[] = [
     date: 'Sat, Feb 7',
     time: '10:00 AM',
     venue: 'Starbucks',
-    price: 'Free',
     image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=200&fit=crop',
     category: 'Finance',
   },
@@ -42,7 +39,6 @@ export const sampleEvents: Event[] = [
     date: 'Fri, Feb 13',
     time: '5:00 PM',
     venue: 'Fortune Landmark Ahmedabad',
-    price: 'Free',
     image: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=400&h=200&fit=crop',
     category: 'Education',
   },
@@ -53,7 +49,6 @@ export const sampleEvents: Event[] = [
     date: 'Sun, Feb 15',
     time: '9:30 PM GMT+5:30',
     venue: 'Live Online Class',
-    price: 'Free',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=200&fit=crop',
     badge: 'promoted',
     category: 'Technology',
@@ -65,7 +60,6 @@ export const sampleEvents: Event[] = [
     date: 'Mon, Feb 17',
     time: '6:00 PM',
     venue: 'Innovation Hub',
-    price: '$25',
     image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=200&fit=crop',
     category: 'Networking',
   },
@@ -76,7 +70,6 @@ export const sampleEvents: Event[] = [
     date: 'Sat, Feb 22',
     time: '8:00 PM',
     venue: 'The Blue Room',
-    price: '$40',
     image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=200&fit=crop',
     category: 'Music',
   },

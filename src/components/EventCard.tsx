@@ -65,7 +65,7 @@ export function EventCard({ event }: EventCardProps) {
           {event.date} • {event.time}
         </p>
         <p className="text-sm text-muted-foreground mb-2">{event.venue}</p>
-        <p className="text-sm font-medium text-foreground">{event.price}</p>
+        <p className="text-sm font-medium text-primary">Free</p>
         {event.badge === 'promoted' && (
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
             Promoted

@@ -1,4 +1,4 @@
-import { Search, MapPin, Heart, Ticket, Plus, User, ChevronDown, LogIn, LogOut, UserPlus } from 'lucide-react';
+import { Search, MapPin, Heart, ClipboardList, Plus, User, ChevronDown, LogIn, LogOut, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -73,9 +73,9 @@ export function Header() {
             variant="ghost" 
             size="icon" 
             className="hidden sm:flex"
-            onClick={() => navigate('/my-tickets')}
+            onClick={() => navigate('/my-registrations')}
           >
-            <Ticket className="h-5 w-5" />
+            <ClipboardList className="h-5 w-5" />
           </Button>
 
           {/* User Menu */}
@@ -124,9 +124,9 @@ export function Header() {
                   )}
                   <DropdownMenuItem>Get Help</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
-                    <Ticket className="mr-2 h-4 w-4" />
-                    My Tickets
+                  <DropdownMenuItem onClick={() => navigate('/my-registrations')}>
+                    <ClipboardList className="mr-2 h-4 w-4" />
+                    My Registrations
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Heart className="mr-2 h-4 w-4" />

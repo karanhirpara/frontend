@@ -2,11 +2,22 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Ticket, Calendar, MapPin, Clock, Download, User, Mail, Phone } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ClipboardList, Calendar, MapPin, Clock, Download, User, Mail, Phone, X } from 'lucide-react';
 import { sampleEvents } from '@/data/events';
 import type { Registration } from '@/components/RegistrationModal';
 
-export default function MyTickets() {
+export default function MyRegistrations() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
 
   useEffect(() => {
@@ -18,6 +29,12 @@ export default function MyTickets() {
 
   const getEventDetails = (eventId: string) => {
     return sampleEvents.find(e => e.id === eventId);
+  };
+
+  const handleCancelRegistration = (registrationId: string) => {
+    const updatedRegistrations = registrations.filter(r => r.registrationId !== registrationId);
+    setRegistrations(updatedRegistrations);
+    localStorage.setItem('registrations', JSON.stringify(updatedRegistrations));
   };
 
   const handleDownload = (registration: Registration) => {
@@ -76,19 +93,19 @@ Thank you for registering!
       <main className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <Ticket className="h-8 w-8 text-primary" />
-            My Tickets
+            <ClipboardList className="h-8 w-8 text-primary" />
+            My Registrations
           </h1>
-          <p className="text-muted-foreground mt-1">View and download your event tickets</p>
+          <p className="text-muted-foreground mt-1">View, download, or cancel your event registrations</p>
         </div>
 
         {registrations.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">You don't have any tickets yet.</p>
+              <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">You haven't registered for any events yet.</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Register for events to see your tickets here.
+                Browse events and register to see them here.
               </p>
             </CardContent>
           </Card>
@@ -160,15 +177,47 @@ Thank you for registering!
                             </div>
                           </div>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownload(registration)}
-                            className="flex-shrink-0"
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Download
-                          </Button>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDownload(registration)}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <X className="h-4 w-4 mr-2" />
+                                  Cancel
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Cancel Registration</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to cancel your registration for "{event.title}"? 
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Keep Registration</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleCancelRegistration(registration.registrationId)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Cancel Registration
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </div>
                       </div>
                     </div>

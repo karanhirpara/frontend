@@ -15,5 +15,5 @@ This is the frontend of the Event Management system built with React (Vite + Typ
 ## Setup & Installation
 1. Clone the repository:
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/karanhirpara/frontend.git
    cd frontend

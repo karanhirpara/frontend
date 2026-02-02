@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/contexts/UserContext';
-
+import { loginUser, registerUser } from '@/services/authApi';
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -14,12 +14,26 @@ export default function Auth() {
   const navigate = useNavigate();
   const { login } = useUser();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate login/signup
-    login(email || 'user@example.com');
-    navigate('/');
-  };
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    let data;
+
+    if (isLogin) {
+      data = await loginUser(email, password);
+    } else {
+      data = await registerUser(name, email, password);
+    }
+
+    // Cookie already set by backend
+    login(data.user.email);
+    navigate("/");
+  } catch (err: any) {
+    console.error(err.message);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-background flex">

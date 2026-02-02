@@ -4,16 +4,74 @@ import { ArrowLeft, Calendar, Clock, MapPin, Share2, Heart, Users, Ticket, Info 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
-import { sampleEvents } from '@/data/events';
+import { fetchEventById } from '@/services/eventApi';
 import { RegistrationModal } from '@/components/RegistrationModal';
-
+import {Event} from "@/data/events";
+import { useEffect } from 'react';
+import {registerForEvent,checkEventRegistration,cancelRegistration} from '@/services/registrationcheckApi'
+import { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js';
 export default function EventDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
+ 
+  const [event, setEvent] = useState<Event | null>(null);
+
+  useEffect(() => {
+    console.log(id);
+    if (!id) return;
+    fetchEventById(id).then(setEvent).catch(console.error);
+  }, [id]);
   
-  const event = sampleEvents.find(e => e.id === id);
+ useEffect(() => {
+   console.log(id);
+  const checkRegistrationStatus = async () => {
+    try {
+      const check = await checkEventRegistration(id);
+       console.log(check);
+      if (check.registered) {
+        console.log("User is already registered");
+        setIsRegistrationOpen(false); // user already registered, close registration
+      } else {
+        setIsRegistrationOpen(true); // user not registered, allow registration
+      }
+    } catch (err: any) {
+      console.error(err);
+      setIsRegistrationOpen(false); // on error, disable registration
+    }
+  };
+
   
+    checkRegistrationStatus();
+  
+},[id]);
+
+  const handleregistration = async() => {
+    
+    try {
+    // 1. Check if the user is already registered
+    const check = await checkEventRegistration(id);
+
+    if (check.registered) {
+      alert("You are already registered for this event.");
+      return;
+    }
+
+    // 2. Register the user if not already registered
+    const result = await registerForEvent(id);
+    alert("Registration successful!");
+    
+    // Optional: update state/UI after successful registration
+    setIsRegistrationOpen(false);
+
+    return result;
+  } catch (err: any) {
+    console.error(err);
+    alert(err.message || "Registration failed.");
+    setIsRegistrationOpen(false);
+  }
+
+  }
   if (!event) {
     return (
       <div className="min-h-screen bg-background">
@@ -53,11 +111,7 @@ export default function EventDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             <div>
-              {event.badge && (
-                <Badge className="mb-3 bg-primary text-primary-foreground">
-                  {event.badge === 'just-added' ? 'Just Added' : event.badge === 'promoted' ? 'Promoted' : 'Free'}
-                </Badge>
-              )}
+             
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 {event.title}
               </h1>
@@ -69,11 +123,11 @@ export default function EventDetail() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Calendar className="h-5 w-5 text-primary" />
-                <span>{event.date}</span>
+                <span>{event.Date}</span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Clock className="h-5 w-5 text-primary" />
-                <span>{event.time}</span>
+                <span>{event.Time}</span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 text-primary" />
@@ -97,54 +151,13 @@ export default function EventDetail() {
               </p>
             </div>
 
-            <div className="border-t border-border pt-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Ticket className="h-5 w-5 text-primary" />
-                Ticket Information
-              </h2>
-              <div className="bg-muted/30 rounded-lg p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">General Admission</span>
-                  <Badge className="bg-primary/20 text-primary">Free</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Free event - one ticket per person. Registration is required to attend.
-                </p>
-              </div>
-            </div>
+            
 
+           
             <div className="border-t border-border pt-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                Event Details
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Duration</p>
-                  <p className="font-medium">2-3 hours</p>
-                </div>
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Language</p>
-                  <p className="font-medium">English</p>
-                </div>
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Age Restriction</p>
-                  <p className="font-medium">All ages</p>
-                </div>
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Refund Policy</p>
-                  <p className="font-medium">Up to 7 days before</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-border pt-6">
-              <h2 className="text-xl font-semibold mb-4">Tags</h2>
+              <h2 className="text-xl font-semibold mb-4">category</h2>
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary">{event.category}</Badge>
-                <Badge variant="secondary">Networking</Badge>
-                <Badge variant="secondary">Learning</Badge>
-                <Badge variant="secondary">Professional</Badge>
               </div>
             </div>
           </div>
@@ -152,58 +165,28 @@ export default function EventDetail() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card border border-border rounded-xl p-6 space-y-6">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-primary">Free</p>
-                <p className="text-sm text-muted-foreground">No payment required</p>
-              </div>
+              
+              
+              {!isRegistrationOpen ? (
+          <Button className="w-full" size="lg" disabled>
+              Already Registered
+           </Button>
+          ) : (
+           <Button
+            className="w-full"
+            size="lg"
+            onClick={() => handleregistration()}
+            >
+                 Register Now
+           </Button>
+           )}
 
-              <Button className="w-full" size="lg" onClick={() => setIsRegistrationOpen(true)}>
-                Register Now
-              </Button>
-
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" size="sm">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-                <Button variant="outline" className="flex-1" size="sm">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </div>
-
-              <div className="border-t border-border pt-4">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  <span>245 people interested</span>
-                </div>
-              </div>
-
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h3 className="font-medium mb-2">Organizer</h3>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-primary font-bold">E</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">Event Organizers</p>
-                    <p className="text-xs text-muted-foreground">1.2k followers</p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="w-full mt-3">
-                  Follow
-                </Button>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <RegistrationModal
-        event={event}
-        isOpen={isRegistrationOpen}
-        onClose={() => setIsRegistrationOpen(false)}
-      />
+     
     </div>
   );
 }

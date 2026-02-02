@@ -21,7 +21,7 @@ export interface Registration {
   email: string;
   phone: string;
   registeredAt: string;
-}
+} 
 
 type Step = 'details' | 'confirmation';
 
@@ -57,7 +57,7 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
       
       const registration: Registration = {
         registrationId,
-        eventId: event.id,
+        eventId: event._id,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -201,11 +201,11 @@ export function RegistrationModal({ event, isOpen, onClose, onRegister }: Regist
                 </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Date:</span>{' '}
-                  <span className="font-medium">{event.date}</span>
+                  <span className="font-medium">{event.Date}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Time:</span>{' '}
-                  <span className="font-medium">{event.time}</span>
+                  <span className="font-medium">{event.Time}</span>
                 </p>
                 <p className="text-sm">
                   <span className="text-muted-foreground">Venue:</span>{' '}

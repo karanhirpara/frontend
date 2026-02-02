@@ -108,10 +108,7 @@ export function Header() {
               ) : (
                 <>
                   {/* Admin Toggle */}
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <span className="text-sm font-medium">Admin Mode</span>
-                    <Switch checked={isAdmin} onCheckedChange={toggleAdmin} />
-                  </div>
+                  
                   <DropdownMenuSeparator />
                   
                   <DropdownMenuItem onClick={() => navigate('/')}>

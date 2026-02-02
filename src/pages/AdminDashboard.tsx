@@ -29,6 +29,9 @@ import { sampleEvents, type Event } from '@/data/events';
 import { useUser } from '@/contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import type { Registration } from '@/components/RegistrationModal';
+import {createEvent, fetchEventByHost,deleteEventById} from '@/services/eventApi';
+import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
+import { set } from 'date-fns';
 
 interface EventFormData {
   title: string;
@@ -37,7 +40,9 @@ interface EventFormData {
   time: string;
   venue: string;
   category: string;
-  image: string;
+  image: string;        // final image URL (or preview)
+imageFile?: File;    // local upload
+
 }
 
 const initialFormData: EventFormData = {
@@ -47,8 +52,11 @@ const initialFormData: EventFormData = {
   time: '',
   venue: '',
   category: 'Business',
-  image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=200&fit=crop',
+  image: '',          // IMPORTANT
+  imageFile: undefined
 };
+
+
 
 const categories = ['Business', 'Finance', 'Education', 'Technology', 'Music', 'Networking', 'Arts', 'Sports'];
 
@@ -66,16 +74,31 @@ export default function AdminDashboard() {
     if (!isAdmin) {
       navigate('/');
     }
+   
   }, [isAdmin, navigate]);
-
+  useEffect(() => {
+    console.log(events);
+      const loadEvents = async () => {
+        try {
+          const data = await fetchEventByHost();
+          console.log(data);
+          setEvents(data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+  
+      loadEvents();
+    }, []);
   useEffect(() => {
     const stored = localStorage.getItem('registrations');
     if (stored) {
       setRegistrations(JSON.parse(stored));
     }
   }, []);
-
+  
   const getEventRegistrations = (eventId: string) => {
+    console.log(eventId);
     return registrations.filter(r => r.eventId === eventId);
   };
 
@@ -94,47 +117,69 @@ export default function AdminDashboard() {
   const handleInputChange = (field: keyof EventFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+  const handleImageUpload = (file: File) => {
+  setFormData(prev => ({
+    ...prev,
+    imageFile: file,
+    image: URL.createObjectURL(file),
+  }));
+};
 
-  const handleSubmit = () => {
-    if (!formData.title || !formData.date || !formData.venue) return;
 
-    if (editingId) {
-      setEvents((prev) =>
-        prev.map((event) =>
-          event.id === editingId
-            ? { ...event, ...formData }
-            : event
-        )
-      );
-    } else {
-      const newEvent: Event = {
-        id: Date.now().toString(),
-        ...formData,
-      };
-      setEvents((prev) => [newEvent, ...prev]);
-    }
+  const handleSubmit = async () => {
+    console.log(formData);
+  if (!formData.title || !formData.date || !formData.venue || !formData.imageFile) {
+    return;
+  }
+  
+  try {
+    const data = new FormData();
+
+    data.append("image", formData.imageFile); // MUST match multer
+    data.append("title", formData.title);
+    data.append("description", formData.description);
+    data.append("date", formData.date);
+    data.append("time", formData.time);
+    data.append("venue", formData.venue);
+    data.append("category", formData.category);
+
+    const response = await createEvent(data);
+
+    // optional: update UI with backend response
+    setEvents(prev => [response.data, ...prev]);
 
     setFormData(initialFormData);
     setEditingId(null);
     setIsDialogOpen(false);
-  };
+  } catch (err: any) {
+    console.error(err.message);
+  }
+};
+
 
   const handleEdit = (event: Event) => {
     setFormData({
       title: event.title,
       description: event.description,
-      date: event.date,
-      time: event.time,
+      date: event.Date,
+      time: event.Time,
       venue: event.venue,
       category: event.category,
       image: event.image,
     });
-    setEditingId(event.id);
+    setEditingId(event._id);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id));
+  const handleDelete =async (id: string) => {
+    try{
+    console.log(id);
+     await deleteEventById(id);
+    setEvents((prev) => prev.filter((event) => event._id !== id));
+    }
+    catch(err){
+      console.log(err);
+    }
   };
 
   const openCreateDialog = () => {
@@ -244,16 +289,38 @@ export default function AdminDashboard() {
                   </Select>
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="image">Image URL</Label>
-                  <Input
-                    id="image"
-                    value={formData.image}
-                    onChange={(e) => handleInputChange('image', e.target.value)}
-                    placeholder="Enter image URL"
-                  />
-                </div>
+             <div className="grid gap-2">
+    <Label>Event Image</Label>
 
+  <label
+    htmlFor="event-image"
+    className="relative h-48 border border-dashed border-border rounded-lg
+               flex items-center justify-center cursor-pointer overflow-hidden"
+  >
+    {formData.imageFile ? (
+      <img
+        src={formData.image}
+        alt="Event"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    ) : (
+      <span className="text-sm text-muted-foreground">
+        Click to upload image
+      </span>
+    )}
+  </label>
+
+  <input
+    id="event-image"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) handleImageUpload(file);
+    }}
+  />
+</div>
                 <Button onClick={handleSubmit} className="w-full mt-4">
                   {editingId ? 'Update Event' : 'Create Event'}
                 </Button>
@@ -265,11 +332,11 @@ export default function AdminDashboard() {
         {/* Events List */}
         <div className="grid gap-4">
           {events.map((event) => {
-            const eventRegistrations = getEventRegistrations(event.id);
-            const isExpanded = expandedEvents.has(event.id);
+            const eventRegistrations = getEventRegistrations(event._id);
+            const isExpanded = expandedEvents.has(event._id);
 
             return (
-              <Card key={event.id} className="animate-fade-in">
+              <Card key={event._id} className="animate-fade-in">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
                     <img
@@ -282,11 +349,11 @@ export default function AdminDashboard() {
                       <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          {event.date}
+                          {event.Date}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {event.time}
+                          {event.Time}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
@@ -294,29 +361,20 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm font-medium text-foreground">Free</span>
+                        
                         <span className="text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
                           {event.category}
                         </span>
-                        <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {eventRegistrations.length} registered
-                        </span>
+                       
                       </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => handleEdit(event)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      
                       <Button
                         size="icon"
                         variant="outline"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(event.id)}
+                        onClick={() => handleDelete(event._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -324,74 +382,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Registered Users Section */}
-                  <Collapsible open={isExpanded} onOpenChange={() => toggleEventExpanded(event.id)}>
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full mt-4 justify-between"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Users className="h-4 w-4" />
-                          View Registered Attendees ({eventRegistrations.length})
-                        </span>
-                        <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2">
-                      {eventRegistrations.length === 0 ? (
-                        <div className="text-center py-4 text-muted-foreground text-sm">
-                          No registrations yet
-                        </div>
-                      ) : (
-                        <div className="border border-border rounded-lg overflow-hidden">
-                          <table className="w-full text-sm">
-                            <thead className="bg-muted/50">
-                              <tr>
-                                <th className="text-left p-3 font-medium">Registration ID</th>
-                                <th className="text-left p-3 font-medium">Name</th>
-                                <th className="text-left p-3 font-medium">Email</th>
-                                <th className="text-left p-3 font-medium">Phone</th>
-                                <th className="text-left p-3 font-medium">Registered</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {eventRegistrations.map((reg) => (
-                                <tr key={reg.registrationId} className="border-t border-border">
-                                  <td className="p-3">
-                                    <span className="font-mono text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                      {reg.registrationId}
-                                    </span>
-                                  </td>
-                                  <td className="p-3">
-                                    <div className="flex items-center gap-2">
-                                      <User className="h-4 w-4 text-muted-foreground" />
-                                      {reg.firstName} {reg.lastName}
-                                    </div>
-                                  </td>
-                                  <td className="p-3">
-                                    <div className="flex items-center gap-2">
-                                      <Mail className="h-4 w-4 text-muted-foreground" />
-                                      {reg.email}
-                                    </div>
-                                  </td>
-                                  <td className="p-3">
-                                    <div className="flex items-center gap-2">
-                                      <Phone className="h-4 w-4 text-muted-foreground" />
-                                      {reg.phone || '-'}
-                                    </div>
-                                  </td>
-                                  <td className="p-3 text-muted-foreground">
-                                    {new Date(reg.registeredAt).toLocaleDateString()}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
+                  
                 </CardContent>
               </Card>
             );

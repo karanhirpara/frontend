@@ -10,6 +10,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
+  console.log(event._id);
   const navigate = useNavigate();
   const getBadgeClass = (badge: string) => {
     switch (badge) {
@@ -36,7 +37,7 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Card 
       className="group overflow-hidden border-0 shadow-none hover:shadow-md transition-shadow duration-300 animate-fade-in cursor-pointer"
-      onClick={() => navigate(`/event/${event.id}`)}
+      onClick={() => navigate(`/event/${event._id}`)}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
         <img
@@ -51,27 +52,18 @@ export function EventCard({ event }: EventCardProps) {
         >
           <Heart className="h-4 w-4" />
         </Button>
-        {event.badge && (
-          <Badge className={`absolute bottom-3 left-3 ${getBadgeClass(event.badge)}`}>
-            {getBadgeLabel(event.badge)}
-          </Badge>
-        )}
+       
       </div>
       <CardContent className="px-0 pt-4">
         <h3 className="font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
           {event.title}
         </h3>
         <p className="text-sm text-muted-foreground mb-1">
-          {event.date} • {event.time}
+          {event.Date} • {event.Time}
         </p>
         <p className="text-sm text-muted-foreground mb-2">{event.venue}</p>
         <p className="text-sm font-medium text-primary">Free</p>
-        {event.badge === 'promoted' && (
-          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-            Promoted
-            <span className="inline-block h-3 w-3 rounded-full border border-muted-foreground text-[8px] flex items-center justify-center">?</span>
-          </p>
-        )}
+        
       </CardContent>
     </Card>
   );

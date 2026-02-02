@@ -11,7 +11,8 @@ This is the frontend of the Event Management system built with React (Vite + Typ
 ## Prerequisites
 - Node.js (>=18)
 - npm or yarn
-
+## Live Frontend URL
+https://frontend-ptnkit1to-karanhirpara3-gmailcoms-projects.vercel.app
 ## Setup & Installation
 1. Clone the repository:
    ```bash

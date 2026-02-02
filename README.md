@@ -1,9 +1,19 @@
-# Create a README file
-echo "# Event Frontend Application" > README.md
-echo "" >> README.md
-echo "A modern event management and registration platform built with React, TypeScript, and Vite." >> README.md
+# Event Management Frontend
 
-# Add, commit, and push it
-git add README.md
-git commit -m "Add README"
-git push origin main
+This is the frontend of the Event Management system built with React (Vite + TypeScript), Tailwind CSS, and integrates with a backend API.
+
+## Features
+- Display all events
+- Create and delete events (admin)
+- Register and cancel registration for events (users)
+- Responsive UI with real-time feedback
+
+## Prerequisites
+- Node.js (>=18)
+- npm or yarn
+
+## Setup & Installation
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd frontend

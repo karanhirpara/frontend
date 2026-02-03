@@ -6,7 +6,7 @@ interface EventsGridProps {
   title?: string;
 }
 
-export function EventsGrid({ events, title = 'Events in Ahmedabad' }: EventsGridProps) {
+export function EventsGrid({ events, title = 'Events' }: EventsGridProps) {
 
   return (
     <section className="py-12">

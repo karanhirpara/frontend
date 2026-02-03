@@ -34,22 +34,7 @@ export function Header() {
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-2xl items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search events" 
-              className="pl-10 bg-secondary border-0"
-            />
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-lg">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">Ahmedabad</span>
-            <Button size="icon" variant="default" className="h-8 w-8 rounded-full">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+      
 
         {/* Navigation */}
         <nav className="flex items-center gap-2">
